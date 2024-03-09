@@ -2,19 +2,99 @@
 title: "EDA"
 author: "Yida Wang"
 date: "2024-03-08"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(gtsummary)
 ```
 
 ```{r}
 train=read.csv("train.csv")
+test=read.csv("test.csv")
+
 ```
 
 ```{r}
 head(train)
+head(test)
+```
+```{r}
+glimpse(train)
 ```
 
+#baseline summary table
+Not included: PassengerId,Cabin,Name
+```{r}
+table1 = tbl_summary(train, include = c(HomePlanet,CryoSleep,Destination,Age,VIP,RoomService,FoodCourt,ShoppingMall,Spa,VRDeck,Transported),statistic = list(all_continuous() ~ "{mean} ({sd}),{median} ({p25}, {p75}),{min}-{max}"))  %>%
+  as_gt()
+table1
+
+```
+
+#NA checking
+
+```{r}
+sum(is.na(train))
+sum(is.na(test))
+```
+
+#Merged all
+```{r}
+train_raw = train %>% 
+  select(-Transported)
+merged=rbind(train_raw %>% mutate(type = "Train"), test %>% mutate(type = "Test"))
+```
+
+#table for all
+```{r}
+table2 = tbl_summary(merged, include = c(HomePlanet,CryoSleep,Destination,Age,VIP,RoomService,FoodCourt,ShoppingMall,Spa,VRDeck,type),statistic = list(all_continuous() ~ "{mean} ({sd}),{median} ({p25}, {p75}),{min}-{max}"))  %>%
+  as_gt()
+table2
+```
+
+# Visualization
+```{r}
+ggplot(merged, aes(x = Age,fill=type)) +
+  geom_histogram(binwidth = 1) +
+  theme_minimal() +
+  labs(title = "Distribution of Age", x = "Age", y = "Frequency")
+
+```
+
+```{r}
+ggplot(merged, aes(x = RoomService,fill=type)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Distribution of RoomService", x = "RoomService", y = "Frequency")
+
+```
+
+```{r}
+ggplot(merged, aes(x = FoodCourt,fill=type)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Distribution of FoodCourt", x = "FoodCourt", y = "Frequency")
+
+```
+
+```{r}
+ggplot(merged, aes(x = ShoppingMall,fill=type)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Distribution of ShoppingMall", x = "ShoppingMall", y = "Frequency")
+```
+```{r}
+ggplot(merged, aes(x = Spa,fill=type)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Distribution of Spa", x = "Spa", y = "Frequency")
+```
+```{r}
+ggplot(merged, aes(x = VRDeck,fill=type)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Distribution of VRDeck", x = "VRDeck", y = "Frequency")
+```
